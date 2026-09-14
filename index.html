@@ -106,7 +106,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Wichtig: Damit der Button nicht aus dem Container flutscht */
+            overflow: hidden; 
         }
 
         button {
@@ -134,10 +134,10 @@
             padding: 15px 35px;
             border-radius: 50px;
             border: 2px solid #ffc1e6;
-            position: absolute; /* Absolute Positionierung für ruckartiges Bewegen */
+            position: absolute; 
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Start in der Mitte */
+            transform: translate(-50%, -50%); 
             font-size: 1.1rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -227,6 +227,40 @@
             box-shadow: 0 10px 20px rgba(214, 51, 132, 0.3);
             margin-top: 10px;
         }
+        
+        /* UHRZEIT WÄHLER */
+        .time-slots-container {
+            display: none; /* Standardmäßig versteckt */
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .time-slot-btn {
+            background: white;
+            border: 2px solid #ffc1e6;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            color: #555;
+            font-size: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-slot-btn:hover {
+            background: #fff0f5;
+            border-color: #d63384;
+        }
+
+        .time-slot-btn.selected {
+            background: #d63384;
+            color: white;
+            border-color: #d63384;
+        }
 
         /* Animationen */
         .fade-in { animation: fadeIn 0.8s ease; }
@@ -278,7 +312,7 @@
             </div>
         </div>
 
-        <!-- Screen 3: Formular -->
+        <!-- Screen 3: Formular mit Datum & Uhrzeit -->
         <div id="form-view">
             <h2 id="form-title" style="margin-top: 0;">Ein letzter Schritt...</h2>
             
@@ -289,7 +323,18 @@
             <input type="number" id="ageInput" placeholder="Dein Alter" required>
 
             <label for="dateInput" id="label-date">Wann passt es dir?</label>
-            <input type="date" id="dateInput" required>
+            <input type="date" id="dateInput" required onchange="updateTimeSlots()">
+
+            <!-- DER NEUE UHRZEITEN WÄHLER -->
+            <div id="timePickerContainer" class="time-slots-container">
+                <p style="text-align:center; color:#888; font-size:0.9rem; margin:0 0 10px 0;" id="time-label">Wähle eine Zeit:</p>
+                <div class="time-slot-btn" onclick="selectTime('10:00 Uhr')">10:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('12:00 Uhr')">12:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('14:00 Uhr')">14:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('16:00 Uhr')">16:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('18:00 Uhr')">18:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('20:00 Uhr')">20:00 Uhr</div>
+            </div>
 
             <button class="btn-submit" id="btn-submit" onclick="submitAndRedirect()">Abschicken & WhatsApp öffnen</button>
         </div>
@@ -314,7 +359,8 @@
                 placeholderAge: "Dein Alter",
                 labelDate: "Wann passt es dir?",
                 btnSubmit: "Abschicken & WhatsApp öffnen",
-                msgPrefix: "Ich bin bereit für"
+                msgPrefix: "Ich bin bereit für",
+                timeLabel: "Wähle eine Uhrzeit:"
             },
             en: {
                 langTitle: "Choose your language",
@@ -331,12 +377,14 @@
                 placeholderAge: "Your Age",
                 labelDate: "When are you free?",
                 btnSubmit: "Submit & Open WhatsApp",
-                msgPrefix: "I'm ready for"
+                msgPrefix: "I'm ready for",
+                timeLabel: "Choose a time:"
             }
         };
 
         let currentLang = "de";
         let selectedActivity = "";
+        let selectedTime = "";
 
         // 1. Sprachauswahl
         function setLanguage(lang) {
@@ -357,6 +405,7 @@
             document.getElementById('ageInput').placeholder = t.placeholderAge;
             document.getElementById('label-date').textContent = t.labelDate;
             document.getElementById('btn-submit').textContent = t.btnSubmit;
+            document.getElementById('time-label').textContent = t.timeLabel;
 
             // Start app
             document.getElementById('language-selection').style.display = 'none';
@@ -365,7 +414,6 @@
 
         // 2. JA Button (mit Konfetti)
         function handleYes() {
-            // Pink/Rosa Konfetti mit Herzen
             confetti({
                 particleCount: 100,
                 spread: 70,
@@ -385,25 +433,21 @@
             const btn = document.getElementById('btnNein');
             const container = document.querySelector('.btn-container');
             
-            // Container Grenzen ermitteln
             const containerWidth = container.offsetWidth;
             const containerHeight = container.offsetHeight;
             const btnWidth = btn.offsetWidth;
             const btnHeight = btn.offsetHeight;
 
-            // Zufällige Position innerhalb der Grenzen berechnen
             const maxLeft = containerWidth - btnWidth;
             const maxTop = containerHeight - btnHeight;
 
             const randomLeft = Math.random() * maxLeft;
             const randomTop = Math.random() * maxTop;
 
-            // Button an die neue Position setzen
             btn.style.left = randomLeft + 'px';
             btn.style.top = randomTop + 'px';
-            btn.style.transform = 'translate(0, 0)'; // Zentrierung entfernen
-            
-            // Kleiner "Flinch" Effekt (kurzes Zucken)
+            btn.style.transform = 'translate(0, 0)'; 
+
             btn.style.transform = 'scale(1.1)';
             setTimeout(() => {
                 btn.style.transform = 'scale(1)';
@@ -428,7 +472,23 @@
             document.getElementById('form-view').style.display = 'block';
         }
 
-        // 5. WhatsApp Weiterleitung
+        // 5. Logik für Uhrzeit & Datum
+        function updateTimeSlots() {
+            const container = document.getElementById('timePickerContainer');
+            container.style.display = 'flex';
+            // Reset selection
+            selectedTime = "";
+            document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        function selectTime(time) {
+            selectedTime = time;
+            // Visuelles Feedback
+            document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        // 6. WhatsApp Weiterleitung
         function submitAndRedirect() {
             const name = document.getElementById('nameInput').value;
             const age = document.getElementById('ageInput').value;
@@ -438,11 +498,17 @@
                 alert(currentLang === 'de' ? "Bitte fülle alles aus! 😘" : "Please fill in everything! 😘");
                 return;
             }
+            
+            if(!selectedTime) {
+                alert(currentLang === 'de' ? "Bitte wähle auch eine Uhrzeit! ⏰" : "Please choose a time! ⏰");
+                return;
+            }
 
             // --- DEINE DATEN HIER ---
             const myNumber = "4915112345678"; 
             
-            const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! 😍\n\nPasst es dir am ${date}?`;
+            // Formatierung der Zeit für WhatsApp (optional, hier als Text)
+            const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! 😍\n\nAm ${date} um ${selectedTime}.`;
             
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${myNumber}?text=${encodedMessage}`;
