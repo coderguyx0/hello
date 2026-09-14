@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Unser Date</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Globale Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #ffffff 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d63384;
+        }
+
+        /* Sprachauswahl */
+        #language-selection {
+            position: absolute;
+            z-index: 200;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fff0f5 0%, #ffffff 100%);
+        }
+
+        .lang-card {
+            background: white;
+            border: 3px solid #d63384;
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.25);
+            max-width: 320px;
+            width: 90%;
+        }
+
+        .lang-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .btn-lang {
+            font-size: 3rem;
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 10px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-lang:hover {
+            transform: scale(1.15);
+            border-color: #ffc1e6;
+            background: #fff0f5;
+        }
+
+        /* Hauptbereich */
+        #main-content {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #d63384;
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            text-shadow: 0 4px 10px rgba(214, 51, 132, 0.15);
+            line-height: 1.2;
+        }
+
+        h2 {
+            color: #d63384;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        /* Buttons */
+        .btn-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            height: 180px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-weight: bold;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-ja {
+            background: #d63384;
+            color: white;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            box-shadow: 0 10px 25px rgba(214, 51, 132, 0.4);
+            z-index: 5;
+        }
+
+        .btn-nein {
+            background: white;
+            color: #aaa;
+            padding: 15px 35px;
+            border-radius: 50px;
+            border: 2px solid #ffc1e6;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Aktivität Auswahl */
+        .activity-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .btn-activity {
+            background: white;
+            color: #d63384;
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 20px rgba(214, 51, 132, 0.1);
+            border: 2px solid #ffc1e6;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-activity:active {
+            transform: scale(0.96);
+            background: #fff0f5;
+            border-color: #d63384;
+        }
+
+        /* Formular */
+        #form-view {
+            display: none;
+            width: 100%;
+            max-width: 350px;
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(214, 51, 132, 0.15);
+            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border: 1px solid #ffc1e6;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ffc1e6;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            color: #333;
+            background: #fff9fc;
+        }
+        
+        input:focus {
+            border-color: #d63384;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #d63384;
+            color: white;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 20px rgba(214, 51, 132, 0.3);
+            margin-top: 10px;
+        }
+
+        /* Animationen */
+        .fade-in { animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        /* Wackel-Effekt */
+        .gooey-wiggle {
+            animation: wiggle 0.25s ease-in-out infinite alternate;
+        }
+
+        @keyframes wiggle {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            25% { transform: translate(-48%, -52%) scale(1.1, 0.9); }
+            50% { transform: translate(-52%, -48%) scale(0.9, 1.1); }
+            75% { transform: translate(-49%, -51%) scale(1.05, 0.95); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sprachauswahl -->
+    <div id="language-selection">
+        <div class="lang-card">
+            <h2 id="lang-text">Wähle deine Sprache</h2>
+            <div class="lang-options">
+                <button class="btn-lang" onclick="setLanguage('de')">🇩🇪</button>
+                <button class="btn-lang" onclick="setLanguage('en')">🇬🇧</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hauptinhalt -->
+    <div id="main-content">
+        
+        <!-- Screen 1: Ja/Nein -->
+        <div id="screen-1" class="fade-in">
+            <h1 id="main-question">Willst du mit mir<br>auf ein Date gehen?</h1>
+            
+            <div class="btn-container">
+                <button class="btn-ja" id="btn-ja-1" onclick="handleYes()">JA</button>
+                <button class="btn-nein" id="btnNein" 
+                        ontouchstart="wiggleEffect()" 
+                        onmouseover="wiggleEffect()">
+                    <span id="text-no">NEIN</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Aktivität -->
+        <div id="screen-2" style="display: none; width: 100%; text-align: center;">
+            <h2 id="activity-title">Was wollen wir machen?</h2>
+            <div class="activity-options">
+                <button class="btn-activity" onclick="selectActivity('cafe')">
+                    <span id="activity-1-icon">☕</span> <span id="activity-1-text">Cafe trinken gehen</span>
+                </button>
+                <button class="btn-activity" onclick="selectActivity('walk')">
+                    <span id="activity-2-icon">🌳</span> <span id="activity-2-text">Spazieren gehen</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Formular -->
+        <div id="form-view">
+            <h2 id="form-title" style="margin-top: 0;">Ein letzter Schritt...</h2>
+            
+            <label for="nameInput" id="label-name">Dein Name</label>
+            <input type="text" id="nameInput" placeholder="Dein Name" required>
+
+            <label for="ageInput" id="label-age">Dein Alter</label>
+            <input type="number" id="ageInput" placeholder="Dein Alter" required>
+
+            <label for="dateInput" id="label-date">Wann passt es dir?</label>
+            <input type="date" id="dateInput" required>
+
+            <button class="btn-submit" id="btn-submit" onclick="submitAndRedirect()">Abschicken & WhatsApp öffnen</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Sprach-Daten
+        const translations = {
+            de: {
+                langTitle: "Wähle deine Sprache",
+                mainQuestion: "Willst du mit mir<br>auf ein Date gehen?",
+                btnYes: "JA",
+                btnNo: "NEIN",
+                activityTitle: "Was wollen wir machen?",
+                act1: "☕ Cafe trinken gehen",
+                act2: "🌳 Spazieren gehen",
+                formTitle: "Ein letzter Schritt...",
+                labelName: "Dein Name",
+                placeholderName: "Dein Name",
+                labelAge: "Dein Alter",
+                placeholderAge: "Dein Alter",
+                labelDate: "Wann passt es dir?",
+                btnSubmit: "Abschicken & WhatsApp öffnen",
+                msgPrefix: "Ich bin bereit für"
+            },
+            en: {
+                langTitle: "Choose your language",
+                mainQuestion: "Do you want to go<br>on a date with me?",
+                btnYes: "YES",
+                btnNo: "NO",
+                activityTitle: "What should we do?",
+                act1: "☕ Go for a Coffee",
+                act2: "🌳 Go for a Walk",
+                formTitle: "Just one last step...",
+                labelName: "Your Name",
+                placeholderName: "Your Name",
+                labelAge: "Your Age",
+                placeholderAge: "Your Age",
+                labelDate: "When are you free?",
+                btnSubmit: "Submit & Open WhatsApp",
+                msgPrefix: "I'm ready for"
+            }
+        };
+
+        let currentLang = "de";
+        let selectedActivity = "";
+
+        // 1. Sprachauswahl
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+
+            document.getElementById('lang-text').textContent = t.langTitle;
+            document.getElementById('main-question').innerHTML = t.mainQuestion;
+            document.getElementById('btn-ja-1').textContent = t.btnYes;
+            document.getElementById('text-no').textContent = t.btnNo;
+            document.getElementById('activity-title').textContent = t.activityTitle;
+            document.getElementById('activity-1-text').textContent = t.act1;
+            document.getElementById('activity-2-text').textContent = t.act2;
+            document.getElementById('form-title').textContent = t.formTitle;
+            document.getElementById('label-name').textContent = t.labelName;
+            document.getElementById('nameInput').placeholder = t.placeholderName;
+            document.getElementById('label-age').textContent = t.labelAge;
+            document.getElementById('ageInput').placeholder = t.placeholderAge;
+            document.getElementById('label-date').textContent = t.labelDate;
+            document.getElementById('btn-submit').textContent = t.btnSubmit;
+
+            // Start app
+            document.getElementById('language-selection').style.display = 'none';
+            document.getElementById('main-content').style.display = 'flex';
+        }
+
+        // 2. JA Button (mit Konfetti)
+        function handleYes() {
+            // Pink/Rosa Konfetti mit Herzen
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                shapes: ['heart'],
+                colors: ['#ff69b4', '#ff1493', '#ff82ab', '#ff66b2', '#ffb8c2'],
+                scalar: 1.2,
+                drift: 0.5,
+                ticks: 300
+            });
+
+            showActivitySelection();
+        }
+
+        // 3. NEIN Button
+        const btnNein = document.getElementById('btnNein');
+        let moveCount = 0;
+
+        function wiggleEffect() {
+            btnNein.classList.add('gooey-wiggle');
+            setTimeout(() => {
+                btnNein.classList.remove('gooey-wiggle');
+                moveButton();
+            }, 250);
+        }
+
+        function moveButton() {
+            const container = document.querySelector('.btn-container');
+            const contRect = container.getBoundingClientRect();
+
+            const maxX = contRect.width - 100;
+            const maxY = contRect.height - 50;
+
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            btnNein.style.position = 'absolute';
+            btnNein.style.left = randomX + 'px';
+            btnNein.style.top = randomY + 'px';
+            btnNein.style.transform = 'translate(0,0)';
+            btnNein.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+
+            moveCount++;
+            if(moveCount > 4) {
+                btnNein.style.opacity = "0";
+                btnNein.style.pointerEvents = "none";
+            }
+        }
+
+        // 4. Navigation
+        function showActivitySelection() {
+            document.getElementById('screen-1').style.display = 'none';
+            const screen2 = document.getElementById('screen-2');
+            screen2.style.display = 'flex';
+            screen2.style.flexDirection = 'column';
+            screen2.style.alignItems = 'center';
+            screen2.style.animation = 'fadeIn 0.5s ease';
+        }
+
+        function selectActivity(type) {
+            if(type === 'cafe') selectedActivity = translations[currentLang].act1;
+            if(type === 'walk') selectedActivity = translations[currentLang].act2;
+
+            document.getElementById('screen-2').style.display = 'none';
+            document.getElementById('form-view').style.display = 'block';
+        }
+
+        // 5. WhatsApp Weiterleitung
+        function submitAndRedirect() {
+            const name = document.getElementById('nameInput').value;
+            const age = document.getElementById('ageInput').value;
+            const date = document.getElementById('dateInput').value;
+
+            if(!name || !age || !date) {
+                alert(currentLang === 'de' ? "Bitte fülle alles aus! 😘" : "Please fill in everything! 😘");
+                return;
+            }
+
+            // --- DEINE DATEN HIER ---
+            const myNumber = "4915112345678"; 
+            
+            const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! 😍\n\nPasst es dir am ${date}?`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${myNumber}?text=${encodedMessage}`;
+
+            window.location.href = whatsappUrl;
+        }
+    </script>
+</body>
+</html>
