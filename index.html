@@ -106,6 +106,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden; /* Wichtig: Damit der Button nicht aus dem Container flutscht */
         }
 
         button {
@@ -126,18 +127,20 @@
             z-index: 5;
         }
 
+        /* Der flutschige Nein Button */
         .btn-nein {
             background: white;
             color: #aaa;
             padding: 15px 35px;
             border-radius: 50px;
             border: 2px solid #ffc1e6;
-            position: absolute;
+            position: absolute; /* Absolute Positionierung für ruckartiges Bewegen */
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%); /* Start in der Mitte */
             font-size: 1.1rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         /* Aktivität Auswahl */
@@ -229,19 +232,6 @@
         .fade-in { animation: fadeIn 0.8s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* Wackel-Effekt */
-        .gooey-wiggle {
-            animation: wiggle 0.25s ease-in-out infinite alternate;
-        }
-
-        @keyframes wiggle {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            25% { transform: translate(-48%, -52%) scale(1.1, 0.9); }
-            50% { transform: translate(-52%, -48%) scale(0.9, 1.1); }
-            75% { transform: translate(-49%, -51%) scale(1.05, 0.95); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-
     </style>
 </head>
 <body>
@@ -266,9 +256,10 @@
             
             <div class="btn-container">
                 <button class="btn-ja" id="btn-ja-1" onclick="handleYes()">JA</button>
+                <!-- Der flutschige Nein Button -->
                 <button class="btn-nein" id="btnNein" 
-                        ontouchstart="wiggleEffect()" 
-                        onmouseover="wiggleEffect()">
+                        ontouchstart="flinchNein()" 
+                        onmouseover="flinchNein()">
                     <span id="text-no">NEIN</span>
                 </button>
             </div>
@@ -389,39 +380,34 @@
             showActivitySelection();
         }
 
-        // 3. NEIN Button
-        const btnNein = document.getElementById('btnNein');
-        let moveCount = 0;
-
-        function wiggleEffect() {
-            btnNein.classList.add('gooey-wiggle');
-            setTimeout(() => {
-                btnNein.classList.remove('gooey-wiggle');
-                moveButton();
-            }, 250);
-        }
-
-        function moveButton() {
+        // 3. Der FLUTSCHIGE Nein Button
+        function flinchNein() {
+            const btn = document.getElementById('btnNein');
             const container = document.querySelector('.btn-container');
-            const contRect = container.getBoundingClientRect();
+            
+            // Container Grenzen ermitteln
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const btnWidth = btn.offsetWidth;
+            const btnHeight = btn.offsetHeight;
 
-            const maxX = contRect.width - 100;
-            const maxY = contRect.height - 50;
+            // Zufällige Position innerhalb der Grenzen berechnen
+            const maxLeft = containerWidth - btnWidth;
+            const maxTop = containerHeight - btnHeight;
 
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+            const randomLeft = Math.random() * maxLeft;
+            const randomTop = Math.random() * maxTop;
 
-            btnNein.style.position = 'absolute';
-            btnNein.style.left = randomX + 'px';
-            btnNein.style.top = randomY + 'px';
-            btnNein.style.transform = 'translate(0,0)';
-            btnNein.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
-
-            moveCount++;
-            if(moveCount > 4) {
-                btnNein.style.opacity = "0";
-                btnNein.style.pointerEvents = "none";
-            }
+            // Button an die neue Position setzen
+            btn.style.left = randomLeft + 'px';
+            btn.style.top = randomTop + 'px';
+            btn.style.transform = 'translate(0, 0)'; // Zentrierung entfernen
+            
+            // Kleiner "Flinch" Effekt (kurzes Zucken)
+            btn.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 100);
         }
 
         // 4. Navigation
