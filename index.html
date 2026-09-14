@@ -7,26 +7,26 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         /* Globale Styles */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #fff0f5 0%, #ffffff 100%);
+        html, body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             width: 100vw;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto; /* Wichtig: Erlaubt das Scrollen nach unten */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #ffffff 100%);
             color: #d63384;
         }
 
         /* Sprachauswahl */
         #language-selection {
-            position: absolute;
-            z-index: 200;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            z-index: 200;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -71,12 +71,11 @@
         #main-content {
             display: none;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: relative;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 5vh 20px 10vh 20px; /* Viel Platz nach unten für das Scrollen */
             box-sizing: border-box;
             z-index: 10;
         }
@@ -97,16 +96,16 @@
             margin-bottom: 30px;
         }
 
-        /* Buttons */
+        /* Buttons Container */
         .btn-container {
             position: relative;
             width: 100%;
             max-width: 350px;
-            height: 180px; 
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Setzt beide Buttons nebeneinander */
             align-items: center;
-            overflow: hidden; 
+            gap: 20px;
+            margin-top: 20px;
         }
 
         button {
@@ -125,22 +124,27 @@
             font-size: 1.3rem;
             box-shadow: 0 10px 25px rgba(214, 51, 132, 0.4);
             z-index: 5;
+            transition: all 0.3s ease;
         }
 
-        /* Der flutschige Nein Button */
+        /* Der FLUTSCHIGE Drippy Nein Button (Wasser-Effekt) */
         .btn-nein {
-            background: white;
-            color: #aaa;
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            color: white;
             padding: 15px 35px;
-            border-radius: 50px;
-            border: 2px solid #ffc1e6;
-            position: absolute; 
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); 
             font-size: 1.1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* Wasser-Tropfen Form (Blob) */
+            border-radius: 40% 60% 50% 50% / 50% 50% 60% 40%;
+            box-shadow: inset 3px 5px 10px rgba(255,255,255,0.6), 0 10px 20px rgba(116, 235, 213, 0.4);
+            transition: left 0.3s ease-out, top 0.3s ease-out, transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 999; /* Damit er beim Fliehen über allem liegt */
+            animation: waterWobble 3s ease-in-out infinite;
+        }
+
+        @keyframes waterWobble {
+            0% { border-radius: 40% 60% 50% 50% / 50% 50% 60% 40%; }
+            50% { border-radius: 60% 40% 60% 40% / 40% 60% 50% 50%; }
+            100% { border-radius: 40% 60% 50% 50% / 50% 50% 60% 40%; }
         }
 
         /* Aktivität Auswahl */
@@ -186,6 +190,8 @@
             box-shadow: 0 15px 40px rgba(214, 51, 132, 0.15);
             animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: 1px solid #ffc1e6;
+            box-sizing: border-box;
+            margin-bottom: 50px;
         }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
@@ -230,11 +236,13 @@
         
         /* UHRZEIT WÄHLER */
         .time-slots-container {
-            display: none; /* Standardmäßig versteckt */
+            display: none; 
             flex-direction: column;
             gap: 10px;
             margin-bottom: 20px;
             animation: fadeIn 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .time-slot-btn {
@@ -266,6 +274,13 @@
         .fade-in { animation: fadeIn 0.8s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
+        /* Responsive Anpassungen */
+        @media (max-width: 400px) {
+            h1 { font-size: 1.8rem; }
+            .btn-ja { padding: 15px 40px; font-size: 1.2rem; }
+            .btn-nein { padding: 12px 30px; font-size: 1rem; }
+            .lang-card { padding: 30px; }
+        }
     </style>
 </head>
 <body>
@@ -290,7 +305,7 @@
             
             <div class="btn-container">
                 <button class="btn-ja" id="btn-ja-1" onclick="handleYes()">JA</button>
-                <!-- Der flutschige Nein Button -->
+                <!-- Der flutschige Wasser-Nein Button -->
                 <button class="btn-nein" id="btnNein" 
                         ontouchstart="flinchNein()" 
                         onmouseover="flinchNein()">
@@ -300,7 +315,7 @@
         </div>
 
         <!-- Screen 2: Aktivität -->
-        <div id="screen-2" style="display: none; width: 100%; text-align: center;">
+        <div id="screen-2" style="display: none; width: 100%; text-align: center; padding: 20px 0;">
             <h2 id="activity-title">Was wollen wir machen?</h2>
             <div class="activity-options">
                 <button class="btn-activity" onclick="selectActivity('cafe')">
@@ -325,7 +340,7 @@
             <label for="dateInput" id="label-date">Wann passt es dir?</label>
             <input type="date" id="dateInput" required onchange="updateTimeSlots()">
 
-            <!-- DER NEUE UHRZEITEN WÄHLER -->
+            <!-- UHRZEITEN WÄHLER -->
             <div id="timePickerContainer" class="time-slots-container">
                 <p style="text-align:center; color:#888; font-size:0.9rem; margin:0 0 10px 0;" id="time-label">Wähle eine Zeit:</p>
                 <div class="time-slot-btn" onclick="selectTime('10:00 Uhr')">10:00 Uhr</div>
@@ -334,6 +349,7 @@
                 <div class="time-slot-btn" onclick="selectTime('16:00 Uhr')">16:00 Uhr</div>
                 <div class="time-slot-btn" onclick="selectTime('18:00 Uhr')">18:00 Uhr</div>
                 <div class="time-slot-btn" onclick="selectTime('20:00 Uhr')">20:00 Uhr</div>
+                <div class="time-slot-btn" onclick="selectTime('21:00 Uhr')">21:00 Uhr</div>
             </div>
 
             <button class="btn-submit" id="btn-submit" onclick="submitAndRedirect()">Abschicken & WhatsApp öffnen</button>
@@ -342,7 +358,6 @@
     </div>
 
     <script>
-        // Sprach-Daten
         const translations = {
             de: {
                 langTitle: "Wähle deine Sprache",
@@ -407,7 +422,6 @@
             document.getElementById('btn-submit').textContent = t.btnSubmit;
             document.getElementById('time-label').textContent = t.timeLabel;
 
-            // Start app
             document.getElementById('language-selection').style.display = 'none';
             document.getElementById('main-content').style.display = 'flex';
         }
@@ -428,30 +442,36 @@
             showActivitySelection();
         }
 
-        // 3. Der FLUTSCHIGE Nein Button
-        function flinchNein() {
+        // 3. NEIN Button Flutsch-Effekt
+        function flinchNein(event) {
             const btn = document.getElementById('btnNein');
-            const container = document.querySelector('.btn-container');
             
-            const containerWidth = container.offsetWidth;
-            const containerHeight = container.offsetHeight;
-            const btnWidth = btn.offsetWidth;
-            const btnHeight = btn.offsetHeight;
+            // Reißt sich vom Layout los, damit das 'Ja' zentriert wird und der Button wild fliegen kann
+            if (btn.style.position !== 'fixed') {
+                btn.style.position = 'fixed';
+            }
 
-            const maxLeft = containerWidth - btnWidth;
-            const maxTop = containerHeight - btnHeight;
+            // Sicherstellen, dass er innerhalb des sichtbaren Fensters bleibt
+            const padding = 20;
+            const btnWidth = btn.offsetWidth || 100;
+            const btnHeight = btn.offsetHeight || 50;
+            
+            const maxX = window.innerWidth - btnWidth - padding;
+            const maxY = window.innerHeight - btnHeight - padding;
 
-            const randomLeft = Math.random() * maxLeft;
-            const randomTop = Math.random() * maxTop;
+            const randomX = Math.max(padding, Math.random() * maxX);
+            const randomY = Math.max(padding, Math.random() * maxY);
 
-            btn.style.left = randomLeft + 'px';
-            btn.style.top = randomTop + 'px';
-            btn.style.transform = 'translate(0, 0)'; 
+            // Setzt die neuen Koordinaten
+            btn.style.left = randomX + 'px';
+            btn.style.top = randomY + 'px';
 
-            btn.style.transform = 'scale(1.1)';
+            // Erzeugt den "Squish" Wasser-Effekt
+            btn.style.transform = 'scale(0.8) skew(15deg)';
+            
             setTimeout(() => {
-                btn.style.transform = 'scale(1)';
-            }, 100);
+                btn.style.transform = 'scale(1) skew(0deg)';
+            }, 250);
         }
 
         // 4. Navigation
@@ -472,20 +492,23 @@
             document.getElementById('form-view').style.display = 'block';
         }
 
-        // 5. Logik für Uhrzeit & Datum
+        // 5. Logik für Uhrzeit & Datum (und Scroll-Fix)
         function updateTimeSlots() {
             const container = document.getElementById('timePickerContainer');
             container.style.display = 'flex';
-            // Reset selection
             selectedTime = "";
             document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
         }
 
         function selectTime(time) {
             selectedTime = time;
-            // Visuelles Feedback
             document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
             event.target.classList.add('selected');
+
+            // Scroll-Anpassung, die jetzt dank der reparierten Body-Struktur einwandfrei klappt
+            setTimeout(() => {
+                document.getElementById('form-view').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
 
         // 6. WhatsApp Weiterleitung
@@ -507,7 +530,6 @@
             // --- DEINE DATEN HIER ---
             const myNumber = "4915112345678"; 
             
-            // Formatierung der Zeit für WhatsApp (optional, hier als Text)
             const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! 😍\n\nAm ${date} um ${selectedTime}.`;
             
             const encodedMessage = encodeURIComponent(message);
