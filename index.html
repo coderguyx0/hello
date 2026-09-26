@@ -315,7 +315,7 @@
 <body>
 
     <!-- TOAST POPUP BENACHRICHTIGUNG -->
-    <div id="toast" class="toast-popup">Gute Entscheidung 😅</div>
+    <div id="toast" class="toast-popup">Gute Entscheidung 🙂</div>
 
     <!-- Sprachauswahl -->
     <div id="language-selection">
@@ -364,10 +364,10 @@
             <h2 id="activity-title">Was wollen wir machen?</h2>
             <div class="activity-options">
                 <button class="btn-activity" onclick="selectActivity('cafe')">
-                    <span id="activity-1-icon"></span> <span id="activity-1-text">☕ Cafe trinken gehen ☕</span>
+                    <span id="activity-1-icon"></span> <span id="activity-1-text">Cafe trinken gehen</span>
                 </button>
                 <button class="btn-activity" onclick="selectActivity('walk')">
-                    <span id="activity-2-icon"></span> <span id="activity-2-text">🌳 Spazieren gehen 🌳</span>
+                    <span id="activity-2-icon"></span> <span id="activity-2-text">Spazieren gehen</span>
                 </button>
             </div>
         </div>
@@ -382,7 +382,7 @@
             <label for="ageInput" id="label-age">Dein Alter</label>
             <input type="number" id="ageInput" placeholder="Dein Alter" required>
 
-            <button class="btn-submit" id="btn-submit" onclick="submitAndRedirect()">Lass treffen!</button>
+            <button class="btn-submit" id="btn-submit" onclick="submitAndRedirect()">Weiter</button>
         </div>
 
     </div>
@@ -397,16 +397,16 @@
                 btnYes: "JA",
                 btnNo: "NEIN",
                 activityTitle: "Was wollen wir machen?",
-                act1: "☕ Cafe trinken gehen ☕",
-                act2: "🌳 Spazieren gehen 🌳",
+                act1: "Cafe trinken gehen",
+                act2: "Spazieren gehen",
                 formTitle: "Ein letzter Schritt...",
                 labelName: "Dein Name",
                 placeholderName: "Dein Name",
                 labelAge: "Dein Alter",
                 placeholderAge: "Dein Alter",
-                btnSubmit: "Lass treffen!",
+                btnSubmit: "Weiter",
                 msgPrefix: "Lass uns",
-                toastMsg: "Gute Entscheidung 😉",
+                toastMsg: "Gute Entscheidung 🙂",
                 taunts: [
                     "NEIN", 
                     "NEIN", 
@@ -425,8 +425,8 @@
                 btnYes: "YES",
                 btnNo: "NO",
                 activityTitle: "What should we do?",
-                act1: "☕ Go for a Coffee ☕",
-                act2: "🌳 Go for a Walk 🌳",
+                act1: "Go for a Coffee",
+                act2: "Go for a Walk",
                 formTitle: "Just one last step...",
                 labelName: "Your Name",
                 placeholderName: "Your Name",
@@ -434,7 +434,7 @@
                 placeholderAge: "Your Age",
                 btnSubmit: "Let's meet!",
                 msgPrefix: "Let's",
-                toastMsg: "Good choice 😉",
+                toastMsg: "Good choice 🙂",
                 taunts: [
                     "NO", 
                     "NO", 
@@ -610,13 +610,13 @@
             const age = document.getElementById('ageInput').value;
 
             if(!name || !age) {
-                showToast(currentLang === 'de' ? "Bitte alles ausfüllen! 😘" : "Please fill out everything! 😘");
+                showToast(currentLang === 'de' ? "Bitte alles ausfüllen! :)" : "Please fill out everything! :)");
                 return;
             }
 
             const myNumber = "491606737216"; 
             
-            const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! 😍`;
+            const message = `Hi! Ich bin ${name} (${age}).\n\n${translations[currentLang].msgPrefix} ${selectedActivity}! :)`;
             
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${myNumber}?text=${encodedMessage}`;
